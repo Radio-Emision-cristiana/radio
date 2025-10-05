@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Reproductor de Radio - MicDrop</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="radio-player">
+        <!-- Header con Sleep Mode -->
+        <div class="header">
+            <div class="sleep-mode" id="sleepModeToggle">
+                <i class="fas fa-moon"></i>
+                <span>Sleep Mode</span>
+            </div>
+        </div>
+
+        <!-- Sección principal del reproductor -->
+        <div class="main-player">
+            <!-- Album art circular -->
+            <div class="album-container">
+                <div class="album-art">
+                    <img id="albumImage" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&crop=center" alt="Album Art">
+                    <div class="play-overlay">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">00:00</span>
+                </div>
+            </div>
+
+            <!-- Información de la canción -->
+            <div class="song-info">
+                <h2 id="artistName">RADIO STREAM</h2>
+                <h3 id="songTitle">Conectando...</h3>
+                <div class="metadata-indicator" id="metadataIndicator"></div>
+            </div>
+
+            <!-- Botones de redes sociales -->
+            <div class="action-buttons">
+                <button class="social-btn facebook-btn" onclick="window.open('https://www.facebook.com', '_blank')">
+                    <i class="fab fa-facebook-f"></i>
+                </button>
+                <button class="social-btn instagram-btn" onclick="window.open('https://www.instagram.com', '_blank')">
+                    <i class="fab fa-instagram"></i>
+                </button>
+                <button class="social-btn twitter-btn" onclick="window.open('https://www.twitter.com', '_blank')">
+                    <i class="fab fa-twitter"></i>
+                </button>
+                <button class="social-btn gmail-btn" onclick="window.open('mailto:', '_blank')">
+                    <i class="fas fa-envelope"></i>
+                </button>
+            </div>
+
+            <!-- Visualizador de audio tipo ecualizador -->
+            <div class="equalizer-visualizer">
+                <div class="equalizer-container" id="equalizerContainer">
+                    <!-- Las barras del ecualizador se generarán dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Control de volumen vertical -->
+            <div class="volume-control">
+                <div class="volume-icon">
+                    <i class="fas fa-volume-up" id="volumeIcon"></i>
+                </div>
+                <div class="volume-slider-container">
+                    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="100" value="80" orient="vertical">
+                    <div class="volume-percentage" id="volumePercentage">80%</div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- Visualizador de fondo que llena toda la pantalla -->
+        <div class="fullscreen-equalizer">
+            <div class="fullscreen-equalizer-container" id="fullscreenEqualizerContainer">
+                <!-- Las barras del ecualizador de fondo se generarán dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Botón flotante para mostrar mini reproductor cuando está oculto -->
+        <button id="showMiniPlayerBtn" class="floating-mini-btn hidden">
+            <i class="fas fa-music"></i>
+        </button>
+
+        <!-- Mini reproductor -->
+        <div class="mini-player">
+            <div class="mini-album">
+                <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=50&h=50&fit=crop&crop=center" alt="Mini Album">
+            </div>
+            <div class="mini-info">
+                <span id="miniTitle">RADIO STREAM</span>
+            </div>
+            <div class="mini-controls">
+                <button id="playPauseBtn" class="mini-control-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="closeMiniPlayer" class="mini-control-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menú de navegación inferior (ELIMINADO) -->
+        <!-- El menú inferior ha sido removido para dejar solo el mini reproductor -->
+
+        <!-- Secciones de contenido -->
+        <div class="content-sections">
+            <div class="section" id="home-section">
+                <h3>Inicio</h3>
+                <div class="stream-controls">
+                    <label for="streamUrl">URL del Stream MP3:</label>
+                    <input type="url" id="streamUrl" placeholder="https://ejemplo.com/stream.mp3" value="https://stream.zeno.fm/yg7bvksbfwzuv">
+                    <button id="connectBtn">Conectar Stream</button>
+                    <button id="forceReconnectBtn" class="secondary-btn">Forzar Reconexión</button>
+                </div>
+            </div>
+            
+            <div class="section" id="mic-section" style="display: none;">
+                <h3>En Vivo</h3>
+                <p>Sección de transmisión en vivo</p>
+            </div>
+            
+            <div class="section" id="playlist-section" style="display: none;">
+                <h3>Lista de Reproducción</h3>
+                <div class="playlist-items">
+                    <div class="playlist-item">
+                        <span>Radio Stream 1</span>
+                        <button onclick="loadStream('https://stream.zeno.fm/yg7bvksbfwzuv')">Reproducir</button>
+                    </div>
+                </div>
+                
+                <h3 style="margin-top: 30px;">Historial de Canciones</h3>
+                <div id="songHistory" class="song-history">
+                    <p style="color: #999; text-align: center; padding: 20px;">El historial aparecerá aquí cuando se reproduzcan canciones</p>
+                </div>
+            </div>
+            
+            <div class="section" id="more-section" style="display: none;">
+                <h3>Más Opciones</h3>
+                <div class="options-grid">
+                    <button class="option-btn">Configuración</button>
+                    <button class="option-btn">Favoritos</button>
+                    <button class="option-btn">Historial</button>
+                    <button class="option-btn">Acerca de</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio element -->
+    <audio id="audioPlayer" preload="auto" autoplay></audio>
+
+    <script src="script.js"></script>
+</body>
+</html>
