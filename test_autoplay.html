@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test AutoPlay Animations</title>
+    <link rel="stylesheet" href="user_input_files/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="radio-player">
+        <!-- Header con Sleep Mode y Volume Control -->
+        <div class="header">
+            <div class="sleep-mode" id="sleepModeToggle">
+                <i class="fas fa-moon"></i>
+                <span>Sleep Mode</span>
+            </div>
+            
+            <!-- Control de volumen flotante -->
+            <div class="volume-floating-container">
+                <div class="volume-floating-icon" id="volumeFloatingIcon">
+                    <i class="fas fa-volume-up" id="volumeIcon"></i>
+                </div>
+                <div class="volume-floating-dropdown">
+                    <div class="volume-slider-vertical-container">
+                        <input type="range" id="volumeSlider" class="volume-slider-vertical" min="0" max="100" value="80" orient="vertical" step="1">
+                    </div>
+                    <div class="volume-percentage-vertical" id="volumePercentage">80%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección principal del reproductor -->
+        <div class="main-player">
+            <!-- Album art circular -->
+            <div class="album-container">
+                <div class="album-art">
+                    <img id="albumImage" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&crop=center" alt="Album Art">
+                    <div class="play-overlay">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="time-display">
+                    <span id="currentTime">00:00</span>
+                </div>
+            </div>
+
+            <!-- Información de la canción -->
+            <div class="song-info">
+                <h2 id="artistName">RADIO STREAM</h2>
+                <h3 id="songTitle">Conectando...</h3>
+                <div class="metadata-indicator" id="metadataIndicator"></div>
+            </div>
+
+            <!-- Botones de redes sociales -->
+            <div class="action-buttons">
+                <button class="social-btn facebook-btn">
+                    <i class="fab fa-facebook-f"></i>
+                </button>
+                <button class="social-btn instagram-btn">
+                    <i class="fab fa-instagram"></i>
+                </button>
+                <button class="social-btn twitter-btn">
+                    <i class="fab fa-twitter"></i>
+                </button>
+                <button class="social-btn gmail-btn">
+                    <i class="fas fa-envelope"></i>
+                </button>
+            </div>
+
+            <!-- Visualizador de audio tipo ecualizador -->
+            <div class="equalizer-visualizer">
+                <div class="equalizer-container" id="equalizerContainer">
+                    <!-- Las barras del ecualizador se generarán dinámicamente -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Visualizador de fondo que llena toda la pantalla -->
+        <div class="fullscreen-equalizer">
+            <div class="fullscreen-equalizer-container" id="fullscreenEqualizerContainer">
+                <!-- Las barras del ecualizador de fondo se generarán dinámicamente -->
+            </div>
+        </div>
+
+        <!-- Mini reproductor -->
+        <div class="mini-player">
+            <div class="mini-album">
+                <img src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=50&h=50&fit=crop&crop=center" alt="Mini Album">
+            </div>
+            <div class="mini-info">
+                <span id="miniTitle">RADIO STREAM</span>
+            </div>
+            <div class="mini-controls">
+                <button id="playPauseBtn" class="mini-control-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button id="closeMiniPlayer" class="mini-control-btn">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Secciones de contenido -->
+        <div class="content-sections">
+            <div class="section" id="home-section">
+                <h3>Test AutoPlay</h3>
+                <div class="stream-controls">
+                    <label for="streamUrl">URL del Stream MP3:</label>
+                    <input type="url" id="streamUrl" placeholder="https://ejemplo.com/stream.mp3" value="https://stream.zeno.fm/yg7bvksbfwzuv">
+                    <button id="connectBtn">Conectar Stream con AutoPlay</button>
+                    <button id="forceReconnectBtn" class="secondary-btn">Forzar Reconexión</button>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,107,53,0.1); border-radius: 10px;">
+                        <h4>Estado del Reproductor:</h4>
+                        <p id="statusDisplay">Desconectado</p>
+                        <p><strong>isPlaying:</strong> <span id="playingStatus">false</span></p>
+                        <p><strong>Album Art Girando:</strong> <span id="albumStatus">No</span></p>
+                        <p><strong>Ecualizador Activo:</strong> <span id="equalizerStatus">No</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Audio element with autoplay -->
+    <audio id="audioPlayer" preload="auto" autoplay></audio>
+
+    <!-- Script básico para verificar funcionamiento -->
+    <script>
+        // Elementos del DOM
+        const connectBtn = document.getElementById('connectBtn');
+        const streamUrlInput = document.getElementById('streamUrl');
+        const audioPlayer = document.getElementById('audioPlayer');
+        const albumArt = document.querySelector('.album-art');
+        const songTitleEl = document.getElementById('songTitle');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        
+        // Estados de prueba
+        let isPlaying = false;
+        let isConnected = false;
+        
+        // Función para actualizar el estado visual
+        function updateStatus() {
+            document.getElementById('statusDisplay').textContent = isConnected ? 'Conectado' : 'Desconectado';
+            document.getElementById('playingStatus').textContent = isPlaying ? 'true' : 'false';
+            document.getElementById('albumStatus').textContent = albumArt.classList.contains('playing') ? 'Sí' : 'No';
+            document.getElementById('equalizerStatus').textContent = isPlaying ? 'Sí' : 'No';
+        }
+        
+        // Simular conexión con autoplay
+        connectBtn.addEventListener('click', () => {
+            const url = streamUrlInput.value.trim();
+            if (!url) {
+                alert('Por favor ingresa una URL válida');
+                return;
+            }
+            
+            songTitleEl.textContent = 'Conectando...';
+            connectBtn.textContent = 'Conectando...';
+            connectBtn.disabled = true;
+            
+            // Simular carga
+            audioPlayer.src = url;
+            audioPlayer.load();
+        });
+        
+        // Eventos del audio
+        audioPlayer.addEventListener('canplay', () => {
+            isConnected = true;
+            songTitleEl.textContent = 'Stream Conectado - Iniciando AutoPlay...';
+            connectBtn.textContent = 'Conectar Stream';
+            connectBtn.disabled = false;
+            
+            // Simular autoplay
+            setTimeout(() => {
+                audioPlayer.play()
+                    .then(() => {
+                        console.log('AutoPlay exitoso');
+                        isPlaying = true;
+                        albumArt.classList.add('playing');
+                        songTitleEl.textContent = 'Reproduciendo en Vivo';
+                        playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+                        updateStatus();
+                    })
+                    .catch(error => {
+                        console.log('AutoPlay bloqueado:', error);
+                        songTitleEl.textContent = 'Toca para Reproducir (AutoPlay Bloqueado)';
+                        updateStatus();
+                    });
+            }, 500);
+        });
+        
+        audioPlayer.addEventListener('play', () => {
+            console.log('Audio play event triggered');
+            isPlaying = true;
+            albumArt.classList.add('playing');
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            updateStatus();
+        });
+        
+        audioPlayer.addEventListener('pause', () => {
+            console.log('Audio pause event triggered');
+            isPlaying = false;
+            albumArt.classList.remove('playing');
+            playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            updateStatus();
+        });
+        
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                audioPlayer.pause();
+            } else {
+                audioPlayer.play();
+            }
+        });
+        
+        // Crear ecualizador simple para prueba
+        const equalizerContainer = document.getElementById('equalizerContainer');
+        for (let i = 0; i < 16; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'eq-bar';
+            for (let j = 0; j < 12; j++) {
+                const segment = document.createElement('div');
+                segment.className = 'eq-segment';
+                bar.appendChild(segment);
+            }
+            equalizerContainer.appendChild(bar);
+        }
+        
+        // Animación del ecualizador
+        function animateEqualizer() {
+            if (isPlaying) {
+                const bars = document.querySelectorAll('.eq-bar');
+                bars.forEach(bar => {
+                    const segments = bar.querySelectorAll('.eq-segment');
+                    const activeCount = Math.floor(Math.random() * 8) + 1;
+                    segments.forEach((segment, index) => {
+                        if (index < activeCount) {
+                            segment.classList.add('active');
+                        } else {
+                            segment.classList.remove('active');
+                        }
+                    });
+                });
+            } else {
+                // Ecualizador calmado cuando está pausado
+                const segments = document.querySelectorAll('.eq-segment');
+                segments.forEach(segment => {
+                    if (Math.random() > 0.7) {
+                        segment.classList.add('active');
+                    } else {
+                        segment.classList.remove('active');
+                    }
+                });
+            }
+            
+            requestAnimationFrame(animateEqualizer);
+        }
+        
+        // Iniciar animación
+        animateEqualizer();
+        updateStatus();
+        
+        // Mostrar la sección de prueba
+        document.querySelector('.content-sections').classList.add('show');
+    </script>
+</body>
+</html>

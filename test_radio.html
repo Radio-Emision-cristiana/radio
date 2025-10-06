@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Radio Player</title>
+    <link rel="stylesheet" href="user_input_files/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="radio-player">
+        <!-- Header con Sleep Mode y Volume Control -->
+        <div class="header">
+            <div class="sleep-mode" id="sleepModeToggle">
+                <i class="fas fa-moon"></i>
+                <span>Sleep Mode</span>
+            </div>
+            
+            <!-- Control de volumen flotante -->
+            <div class="volume-floating-container">
+                <div class="volume-floating-icon" id="volumeFloatingIcon">
+                    <i class="fas fa-volume-up" id="volumeIcon"></i>
+                </div>
+                <div class="volume-floating-dropdown">
+                    <div class="volume-slider-vertical-container">
+                        <input type="range" id="volumeSlider" class="volume-slider-vertical" min="0" max="100" value="80" orient="vertical" step="1">
+                    </div>
+                    <div class="volume-percentage-vertical" id="volumePercentage">80%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resto del contenido simplificado para prueba -->
+        <div class="main-player">
+            <div class="album-container">
+                <div class="album-art">
+                    <img id="albumImage" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop&crop=center" alt="Album Art">
+                </div>
+            </div>
+            
+            <div class="song-info">
+                <h2 id="artistName">RADIO STREAM</h2>
+                <h3 id="songTitle">Conectando...</h3>
+            </div>
+        </div>
+
+        <!-- Audio element -->
+        <audio id="audioPlayer" preload="auto"></audio>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        // Simulación básica para probar el control de volumen
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeIcon = document.getElementById('volumeIcon');
+        const volumePercentage = document.getElementById('volumePercentage');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        // Configurar volumen inicial
+        let currentVolume = 0.8; // 80%
+        let previousVolume = currentVolume;
+        
+        if (audioPlayer) {
+            audioPlayer.volume = currentVolume;
+        }
+        
+        if (volumeSlider) {
+            volumeSlider.value = currentVolume * 100;
+        }
+
+        if (volumeSlider && volumePercentage) {
+            volumeSlider.addEventListener('input', (e) => {
+                const value = parseInt(e.target.value);
+                const volume = value / 100;
+                
+                // Actualizar audio
+                if (audioPlayer) {
+                    audioPlayer.volume = volume;
+                }
+                
+                // Actualizar display
+                volumePercentage.textContent = `${value}%`;
+                currentVolume = volume;
+                
+                // Actualizar icono
+                if (value == 0) {
+                    volumeIcon.className = 'fas fa-volume-mute';
+                } else if (value < 30) {
+                    volumeIcon.className = 'fas fa-volume-down';
+                } else {
+                    volumeIcon.className = 'fas fa-volume-up';
+                }
+                
+                console.log('Volumen cambiado a:', value + '%', 'Audio volume:', volume);
+            });
+        }
+
+        // Toggle mute al hacer clic en el icono
+        if (volumeIcon) {
+            volumeIcon.addEventListener('click', () => {
+                if (currentVolume > 0) {
+                    // Mute
+                    previousVolume = currentVolume;
+                    volumeSlider.value = 0;
+                    currentVolume = 0;
+                    if (audioPlayer) audioPlayer.volume = 0;
+                    volumePercentage.textContent = '0%';
+                    volumeIcon.className = 'fas fa-volume-mute';
+                } else {
+                    // Unmute
+                    const restoreValue = (previousVolume || 0.5) * 100;
+                    volumeSlider.value = restoreValue;
+                    currentVolume = restoreValue / 100;
+                    if (audioPlayer) audioPlayer.volume = currentVolume;
+                    volumePercentage.textContent = `${Math.round(restoreValue)}%`;
+                    
+                    if (restoreValue < 30) {
+                        volumeIcon.className = 'fas fa-volume-down';
+                    } else {
+                        volumeIcon.className = 'fas fa-volume-up';
+                    }
+                }
+                console.log('Mute/Unmute - Nuevo volumen:', Math.round(currentVolume * 100) + '%');
+            });
+        }
+
+        // Mejorar interacción del dropdown
+        const volumeDropdown = document.querySelector('.volume-floating-dropdown');
+        
+        if (volumeDropdown && volumeSlider) {
+            volumeSlider.addEventListener('mousedown', () => {
+                volumeDropdown.classList.add('active');
+                console.log('Dropdown activado');
+            });
+            
+            volumeSlider.addEventListener('mouseup', () => {
+                setTimeout(() => {
+                    volumeDropdown.classList.remove('active');
+                    console.log('Dropdown desactivado');
+                }, 1000);
+            });
+        }
+        
+        // Actualizar display inicial
+        if (volumePercentage) {
+            volumePercentage.textContent = `${Math.round(currentVolume * 100)}%`;
+        }
+        
+        if (volumeIcon) {
+            if (currentVolume == 0) {
+                volumeIcon.className = 'fas fa-volume-mute';
+            } else if (currentVolume < 0.3) {
+                volumeIcon.className = 'fas fa-volume-down';
+            } else {
+                volumeIcon.className = 'fas fa-volume-up';
+            }
+        }
+    </script>
+</body>
+</html>

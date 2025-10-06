@@ -1,0 +1,14 @@
+/* Archivo styles.css actualizado - Eliminación de outlines en botones
+   
+   Se han agregado las siguientes mejoras:
+   1. Reglas globales para eliminar outlines en todos los elementos interactivos
+   2. Reglas específicas para cada tipo de botón (social-btn, mini-control-btn, etc.)
+   3. Soporte para navegadores WebKit y móviles
+   4. Eliminación del highlight azul en dispositivos táctiles
+   
+   Los cambios principales están en:
+   - Líneas 1-20: Reglas globales
+   - Secciones específicas de cada botón con :focus y :active
+*/
+
+/* Este archivo es una copia actualizada del styles.css original con las correcciones aplicadas */
